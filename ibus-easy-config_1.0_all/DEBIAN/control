@@ -1,0 +1,11 @@
+Package: ibus-easy-config
+Version: 1.0
+Section: utils
+Priority: optional
+Architecture: all
+Depends: ibus, ibus-m17n, m17n-db, ibus-gtk, ibus-qt4, debconf
+Essential: no
+Maintainer: Md. Enzam Hossain <enzam@progmaatic.com>
+Description: Insallation package for Easy IBus Config
+ This package will help to set up IBus on user's pc easily.
+Homepage: https://github.com/ienzam/Avro-Phonetic-m17n

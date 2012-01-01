@@ -1,0 +1,27 @@
+Template: ibus-easy-config/install-ibus-globally
+Type: select
+Default: Yes
+Choices: Yes, No, Not Sure
+Description: Do You Want To Install IBus Globally?
+ If you choose "Yes" (or "Not Sure"), I will install IBus globally and for all the users logged in.
+ .
+ If you are not sure what to do, it is safe to select Yes.
+
+Template: ibus-easy-config/start-now
+Type: select
+Default: Yes
+Choices: Yes, No
+Description: Start IBus Easy Config Now?
+ Do you want to start IBus Easy Config now? You can select your language and start typing easily.
+ You can also customize your shortcut easily.
+ .
+ If you are not sure what to do, it is safe to select Yes.
+
+Template: ibus-easy-config/select-user
+Type: select
+Choices: ${choices}
+Description: Who Are You?
+ It seems that more than one user is currently logged in. I am stupid and can't detect who you are :-(.
+ Please select your name from the list.
+ .
+ P.S.: Please select the correct user or the installation will not be ok. You can find your user name usually on the upper right corner.

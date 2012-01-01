@@ -1,0 +1,34 @@
+#!/bin/bash -e
+. /usr/share/debconf/confmodule
+
+db_get ibus-easy-config/install-ibus-globally
+
+#get all logged in user list as array
+users=($(who -q|tr ' ' '\012' | awk '!x[$0]++ && !x["#"]'))
+
+if [ "$RET" != "No" ]; then
+	#echo "Ok to instatll"
+
+	#install ibus as alternative
+	update-alternatives --install \
+	/etc/X11/xinit/xinput.d/all_ALL \
+	xinput-all_ALL \
+	/etc/X11/xinit/xinput.d/ibus 60
+	
+	#set ibus as main input
+	update-alternatives --set xinput-all_ALL /etc/X11/xinit/xinput.d/ibus
+
+	#set ibus as default for all logged in users
+	for user in ${users[@]}; do
+		su $user -c "im-switch -s ibus"
+	done
+fi
+
+db_get ibus-easy-config/start-now
+if [ "$RET" = "Yes" ]; then
+	db_get ibus-easy-config/select-user
+	db_stop
+	cur_user=$RET
+	sudo -u $cur_user nohup ibus-easy-config > /dev/null &
+	exit
+fi

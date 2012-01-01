@@ -1,0 +1,2 @@
+#!/bin/sh
+python /usr/share/ibus-easy-config/main.py

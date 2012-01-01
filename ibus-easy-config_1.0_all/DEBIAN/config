@@ -1,0 +1,33 @@
+#!/bin/bash -e
+. /usr/share/debconf/confmodule
+
+db_settitle ibus-easy-config/install-ibus-globally
+db_input high ibus-easy-config/install-ibus-globally || true
+db_go || true
+
+db_settitle ibus-easy-config/start-now
+db_input high ibus-easy-config/start-now || true
+db_go || true
+
+#get all logged in user list as array
+users=($(who -q|tr ' ' '\012' | awk '!x[$0]++ && !x["#"]'))
+
+db_get ibus-easy-config/start-now
+if [ "$RET" = "Yes" ]; then
+	if [ ${#users[@]} -ne 1 ]; then #if logged in user is not 1, ask for who is s/he
+		user_choices=''
+		for user in ${users[@]}; do
+			if [ -z $user_choices ]; then
+				user_choices="$user"
+			else
+				user_choices="$user_choices, $user"
+			fi
+		done
+		db_settitle ibus-easy-config/select-user
+		db_subst ibus-easy-config/select-user choices $user_choices
+		db_input critical ibus-easy-config/select-user || true
+		db_go || true
+	else
+		db_set ibus-easy-config/select-user ${users[0]}
+	fi
+fi

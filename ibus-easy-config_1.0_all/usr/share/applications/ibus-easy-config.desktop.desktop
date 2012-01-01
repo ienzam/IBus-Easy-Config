@@ -1,0 +1,11 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Encoding=UTF-8
+Name=Easy Keyboard Layout Configuration
+Comment=Adjust layout and shortcuts for keyboard input.
+Exec=ibus-easy-config
+Icon=ibus-easy-config
+Terminal=false
+Type=Application
+Categories=Settings;
+Name[en]=ibus-easy-config.desktop
