@@ -51,11 +51,6 @@ class IBus:
     def getShortcuts(self):
         shortcuts = self.config.get_value("general/hotkey", "trigger",
                                      ibus.CONFIG_GENERAL_SHORTCUT_TRIGGER_DEFAULT)
-
-        #debug part
-        #for i in map(self.ibusToEasyShortcut, shortcuts):
-        #    print self.easyToIBusShortcut(i)
-        
         return list(set(map(self.ibusToEasyShortcut, shortcuts)))
 
     def getPrimaryLayout(self):
@@ -66,10 +61,10 @@ class IBus:
         #return engines
         
     def saveShortcuts(self, shortcuts):
-        ibusShortcuts = set()
+        ibusShortcuts = []
         for i in shortcuts:
-            ibusShortcuts |= self.easyToIBusShortcuts(i)
-        self.config.set_list("general/hotkey", "trigger", list(ibusShortcuts), "s")
+            ibusShortcuts.append(self.easyToIBusShortcut(i))
+        self.config.set_list("general/hotkey", "trigger", ibusShortcuts, "s")
         pass
         
     def setPrimaryLayout(self, layout):
@@ -83,38 +78,32 @@ class IBus:
         shortcut str => ibus formatted shortcut
         Returns str => easy formatted shortcut
         """
-        keys = shortcut.split('+')
-        if "Release" in keys: keys.remove("Release")
+        if shortcut.startswith("Release"): return shortcut[8:]
         
-        leftRightChecks = ['Shift', 'Control', 'Alt', 'Super']
-        for check in leftRightChecks:
-            for lr in ["_L", "_R"]:
-                if check+lr in keys: keys[keys.index(check+lr)] = check
-                #The code cheks the following thing
-                #if "Shift_R" in keys: keys[keys.index("Shift_R")] = "Shift"
-        keys.sort()
-        return '+'.join(keys)
+        for lr in ["_L", "_R"]:
+            if shortcut.endswith(lr):
+                lrToFull = {"_L" : "Left", "_R" : "Right"}
+                parts = shortcut.rsplit("+", 1)
+                return parts[0]+'+'+lrToFull[lr]+' '+parts[1][:-2]
+                
+        return shortcut
         
-    def easyToIBusShortcuts(self, shortcut):
+    def easyToIBusShortcut(self, shortcut):
         """
         shortcut str => easy formatted shortcut
-        Returns set => list of ibus formatted shortcuts
+        Returns str => ibus formatted shortcut
         """
-        keys = shortcut.split('+')
-        retList = set()
-        keySet = set(keys)
-        leftRight = ['Shift', 'Control', 'Alt', 'Super']
-        if len(keySet.difference(leftRight)) == 0:
-            newKeys = keys[:]
-            for key in keys:
-                newKeys.remove(key)
-                for lr in ["_L", "_R"]: retList.add("+".join(newKeys)+"+"+key+lr)
-                newKeys.append(key)
-        else:
-            if len(keys) == 1: retList.add("Release+"+keys[0])
-            else: retList.add("+".join(keys))
-        return retList
+        if '+' not in shortcut: return "Release+" + shortcut
+
+        parts = shortcut.rsplit("+", 1)
+        for lr in ["Left", "Right"]:
+            if parts[1].startswith(lr):
+                return parts[0]+'+'+parts[1][len(lr)+1:]+'_'+lr[0]
+                                
+        return shortcut
 #end of my IBus Class
+
+
 
 class EasyConfigGTK:
     """This is an Easy Config GTK application"""
@@ -148,9 +137,6 @@ class EasyConfigGTK:
         column.add_attribute(renderer, 'text', 0)
 
         self.populateShortcuts()
-        #important because converting ibus shortcut to easy shortcut
-        #so need to add all shortcuts for easy shortcuts
-        self.saveCurrentShortcuts()
         
         #set input method/layout list
         self.layoutComboBox = self.builder.get_object("layoutComboBox")
